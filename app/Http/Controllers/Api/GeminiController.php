@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class GeminiController extends Controller
 {
@@ -16,6 +17,16 @@ class GeminiController extends Controller
         $ip = $request->ip();
         $apiKey = env('GEMINI_API_KEY');
         $query = $request->input('query');
+
+        $validator = Validator::make($request->all(), [
+            'query' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            Log::error('Gemini AI: query input required');
+
+            return response()->json(['error' => ['message' => 'Question need to be filled']]);
+        }
 
         $executed = RateLimiter::attempt(
             'ip: ' . $ip,
@@ -47,7 +58,7 @@ class GeminiController extends Controller
             return response()->json($executed);
         }
 
-        $answer = $executed['candidates'][0]['content']['parts'][0]['text'];
+        $answer = str_replace('*', '', $executed['candidates'][0]['content']['parts'][0]['text']);
 
         return response()->json(['answer' => $answer]);
     }

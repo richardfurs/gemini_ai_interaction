@@ -12,9 +12,6 @@
 ```
 add your gemini api key GEMINI_API_KEY=your_google_gemini_api_key
 ```
-```
-npm run dev
-```
 
 ### Example request for Gemini AI API:
 

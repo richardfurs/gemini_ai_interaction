@@ -49,17 +49,17 @@ class GeminiController extends Controller
         if (!$executed) {
             Log::error('Gemini AI: Too many requests per minute, max attempts 20');
 
-            return response()->json(['error' => ['message' => 'Too many attempts per minute, max attempts 20']]);
+            return response()->json(['error' => ['message' => 'Too many attempts per minute, max attempts 20']], 429);
         }
 
         if (isset($executed['error'])) {
             Log::error("Gemini AI: {$executed['error']['message']}");
 
-            return response()->json($executed);
+            return response()->json($executed, $executed['error']['code']);
         }
 
         $answer = str_replace('*', '', $executed['candidates'][0]['content']['parts'][0]['text']);
 
-        return response()->json(['answer' => $answer]);
+        return response()->json(['answer' => $answer], 200);
     }
 }
